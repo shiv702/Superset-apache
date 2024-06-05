@@ -1,0 +1,22 @@
+# Use the official Apache Superset image
+FROM apache/superset:latest
+
+# Install Redis
+USER root
+RUN apt-get update && \
+    apt-get install -y redis-server && \
+    rm -rf /var/lib/apt/lists/*
+
+# Start Redis
+CMD ["redis-server", "--daemonize", "yes"]
+
+# Switch back to superset user and initialize Superset
+USER superset
+COPY ./superset_config.py /app/pythonpath/superset_config.py
+RUN superset db upgrade
+RUN superset init
+
+EXPOSE 8088
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8088", "superset.app:create_app()"]
+

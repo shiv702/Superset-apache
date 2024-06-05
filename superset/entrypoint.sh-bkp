@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Path to your Superset config
+CONFIG_PATH="/app/pythonpath/superset_config.py"
+
+# Generate a SECRET_KEY if one isn't already set
+if ! grep -q "SECRET_KEY =" $CONFIG_PATH; then
+  echo "Generating a new SECRET_KEY..."
+  # Using Python to generate a secure key
+  SECRET_KEY=$(python -c "import os; print(os.urandom(24).hex())")
+  echo "SECRET_KEY = '$SECRET_KEY'" >> $CONFIG_PATH
+fi
+
+# Execute the CMD from the Dockerfile, e.g., start Superset
+exec "$@"
+
